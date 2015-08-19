@@ -1,0 +1,4 @@
+login.service.url=http://login.anverm.com:8181
+appId=101
+anonymous.resource=public.jsp
+domain.name=smartidea.anverm.com

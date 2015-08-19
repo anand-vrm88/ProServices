@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+  "WebContent/WEB-INF/sample.dtd">
+
+<project name="login" default="main" basedir=".">
+	<property file="build.props" />
+
+	<property name="project.name" value="${ant.project.name}" />
+	
+	<path id="build.classpath">
+		<fileset dir="${global.lib}" includes="**/*.jar" />
+	</path>
+	
+	<path id="src.client">
+		<pathelement location="${src.client.dir}" />
+		<pathelement location="${src.common.dir}" />
+	</path>
+	
+	<path id="src">
+		<pathelement location="${src.console.dir}" />
+		<pathelement location="${src.service.dir}" />
+		<pathelement location="${src.common.dir}" />
+		<pathelement location="${src.model.dir}" />
+	</path>
+	
+	<taskdef name="start" classname="org.apache.catalina.ant.StartTask" />
+	<taskdef name="stop" classname="org.apache.catalina.ant.StopTask" />
+	<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask" />
+	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask" />
+	
+	<target name="stop" description="stop application in tomcat">
+		<stop url="${tomcat.manager.url}" username="${tomcat.manager.username}"
+			password="${tomcat.manager.password}" path="/${project.name}" />
+	</target>
+
+	<target name="start" description="start application in tomcat">
+		<start url="${tomcat.manager.url}" username="${tomcat.manager.username}"
+			password="${tomcat.manager.password}" path="/${project.name}" />
+	</target>
+	
+	<target name="undeploy" description="undeploy from tomcat">
+		<undeploy 
+			failonerror="no"
+			url="${tomcat.manager.url}"
+			username="${tomcat.manager.username}"
+			password="${tomcat.manager.password}"
+			path="/${project.name}"
+		/>
+	</target>
+	
+	<target name="deploy" description="deploy to tomcat">
+		<echo>deploying from client</echo>
+		<deploy 
+			url="${tomcat.manager.url}"
+			username="${tomcat.manager.username}"
+			password="${tomcat.manager.password}"
+			path="/${project.name}"
+			war="file:/home/anand/git/AnvermGateway/${project.name}/${dist.dir}/${project.name}.war"
+		/>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+	
+	<target name="makedir" >
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${build.dir}/${ant.project.name}" />
+		<mkdir dir="${build.dir}/${ant.project.name}/WebContent" />
+	</target>
+	
+	<target name="copy">
+		<copy todir="${build.dir}/${project.name}/WebContent" >
+			<fileset dir="WebContent">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		<copy todir="${build.dir}/${project.name}/WebContent/WEB-INF/classes">
+			<fileset dir="${conf.dir}" includes="log4j.xml" />
+			<fileset dir="${conf.dir}" includes="server.props" />
+			<fileset dir="${conf.dir}" includes="application.props" />
+		</copy>
+		<copy todir="${build.dir}/${project.name}/WebContent/META-INF">
+			<fileset dir="${conf.dir}" includes="context.xml" />
+		</copy>
+	</target>
+	
+	<target name="compile" >
+		<javac destdir="${build.dir}/${project.name}/WebContent/WEB-INF/classes" classpathref="build.classpath" includeantruntime="true" debug="true" >
+			<src refid="src" />
+		</javac>
+	</target>
+	
+	<target name="jar" >
+		<mkdir dir="${dist.dir}/classes"/>
+		<javac destdir="${dist.dir}/classes" classpathref="build.classpath" includeantruntime="true" debug="true" >
+			<src refid="src.client" />
+		</javac>
+		<!-- <copy todir="${dist.dir}/classes">
+			<fileset dir="${conf.dir}">
+				<include name="client.props" />
+			</fileset>
+		</copy> -->
+		<jar destfile="${dist.dir}/${project.name}-client.jar" basedir="${dist.dir}/classes" /> 
+		<delete dir="${dist.dir}/classes" />
+		<copy todir="${global.lib}/av">
+			<fileset dir="${dist.dir}">
+				<include name="${project.name}-client.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="copyJars">
+		<copy todir="${build.dir}/${project.name}/WebContent/WEB-INF/lib">
+			<fileset dir="${global.lib}/tp">
+				<include name="jersey-bundle-1.17.jar" /> 
+				<include name="json-simple-1.1.1.jar" />
+				<include name="mysql-connector-java-5.1.33-bin.jar" />
+				<include name="log4j-1.2.17.jar" />
+				<include name="asm-3.1.jar" />
+				<include name="jackson-core-asl-1.9.2.jar" />
+				<include name="jackson-jaxrs-1.9.2.jar" />
+				<include name="jackson-mapper-asl-1.9.2.jar" />
+				<include name="jackson-xc-1.9.2.jar" /> 
+				<include name="jersey-client-1.17.1.jar" />
+				<include name="jersey-core-1.17.1.jar" />
+				<include name="jersey-json-1.17.1.jar" />
+				<include name="jersey-server-1.17.1.jar" />
+				<include name="jersey-servlet-1.17.1.jar" />
+				<include name="jettison-1.1.jar" /> 
+				<include name="jsr311-api-1.1.1.jar" />
+				<include name="commons-httpclient-3.1.jar" />
+				<include name="org-apache-commons-logging.jar" />
+				<include name="org-apache-commons-codec.jar" />
+				<include name="commons-codec-1.6.jar" />
+			</fileset>
+			<fileset dir="${global.lib}/av">
+				<include name="webutil.jar" />
+				<include name="login-client.jar" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="war">
+		<delete file="${dist.dir}/${project.name}.war" />
+		<war warfile="${dist.dir}/${project.name}.war"  >
+			<fileset dir="${build.dir}/${project.name}/WebContent">
+				<include name="**/*" />
+			</fileset>
+		</war>
+	</target>
+	
+	<target name="main" depends="clean, makedir, copy, compile, jar, copyJars, war, stop, undeploy, deploy, start" >
+		
+	</target>
+</project>

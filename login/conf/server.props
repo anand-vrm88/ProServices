@@ -1,0 +1,5 @@
+#mysql DB properties
+mysql.jdbc.driver=com.mysql.jdbc.Driver
+mysql.jdbc.url=jdbc:mysql://localhost:3306/login
+mysql.jdbc.username=root
+mysql.jdbc.password=F9Oq1fg6

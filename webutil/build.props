@@ -1,0 +1,10 @@
+build.dir=build
+dist.dir=dist
+src.dir=src
+src.client.dir=src-client
+tp.lib=../buildlib/tp
+global.lib=../buildlib
+tomcat.manager.url=http://localhost:8181/manager/text
+tomcat.manager.username=tomcat
+tomcat.manager.password=tomcat
+appserver.lib=/home/anand/Installed/tomcat/lib

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+  "WebContent/WEB-INF/sample.dtd">
+
+<project name="SmartIdea" default="main" basedir=".">
+	<!-- Add property files here -->
+	<property file="build.props" />
+	
+	<!-- Add property names here -->
+	<property name="project.name" value="${ant.project.name}" />
+	
+	<!-- Add classpath for compiling java classes -->
+	<path id="build.classpath">
+		<fileset dir="${global.lib}" includes="**/*.jar" />
+	</path>
+	
+	<!-- Remove old directories -->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+	
+	<!-- Create required directories -->
+	<target name="makedir" >
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${build.dir}/${ant.project.name}" />
+		<mkdir dir="${build.dir}/${ant.project.name}/WebContent" />
+	</target>
+	
+	<!-- Copy web files to build folder -->
+	<target name="copy">
+		<copy todir="${build.dir}/${ant.project.name}/WebContent" >
+			<fileset dir="WebContent">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		<copy todir="${build.dir}/${project.name}/WebContent/WEB-INF/classes">
+			<fileset dir="${conf.dir}" includes="log4j.xml" />
+			<fileset dir="${conf.dir}" includes="application.props" />
+		</copy>
+		<copy todir="${build.dir}/${project.name}/WebContent/META-INF">
+			<fileset dir="${conf.dir}" includes="context.xml" />
+		</copy>
+		<copy todir="${build.dir}/${project.name}/WebContent/WEB-INF/lib">
+			<fileset dir="${global.lib}/tp">
+				<include name="jersey-bundle-1.18.jar" />
+				<include name="json-simple-1.1.1.jar" />
+				<include name="mysql-connector-java-5.1.33-bin.jar" />
+				<include name="log4j-1.2.17.jar" />
+				<include name="commons-httpclient-3.1.jar" />
+				<include name="org-apache-commons-logging.jar" />
+				<include name="org-apache-commons-codec.jar" />
+				<include name="asm-3.1.jar" />
+				<include name="commons-pool2-2.2.jar" />
+				<include name="jedis-2.6.0.jar" />
+			</fileset>
+			<fileset dir="${global.lib}/av">
+				<include name="webutil.jar" />
+				<include name="login-client.jar" />
+				<include name="analytics.jar" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<!-- Compile class files and copy to project in build folder -->
+	<target name="compile" >
+		<javac srcdir="${src.dir}" destdir="${build.dir}/${ant.project.name}/WebContent/WEB-INF/classes" classpathref="build.classpath" includeantruntime="true" debug="true" />
+	</target>
+	
+	<!-- Create jar file if it is required -->
+<!--	<target name="jar" >
+		<mkdir dir="${dist.dir}/classes"/>
+		<javac srcdir="{classes location}" destdir="${dist.dir}/classes" classpathref="build.classpath" includeantruntime="true" />
+		<copy todir="${dist.dir}/classes">
+			<fileset dir="">
+				<include name="{property file}" />
+			</fileset>
+		</copy>
+		<jar destfile="${dist.dir}/{give name to jar file}" basedir="${dist.dir}/classes" /> 
+		<delete dir="${dist.dir}/classes" />
+		<copy todir="${global.lib}/av">
+			<fileset dir="${dist.dir}">
+				<include name="{jar file name}" />
+			</fileset>
+		</copy>
+	</target>	-->
+	
+	<!-- Create war file from project in build folder and put war file in dist folder -->
+	<target name="war">
+		<delete file="${dist.dir}/${project.name}.war" />
+		<war warfile="${dist.dir}/${project.name}.war" webxml="${build.dir}/${project.name}/WebContent/WEB-INF/web.xml" >
+			<classes dir="${build.dir}/${project.name}/WebContent/WEB-INF/classes" />
+			<fileset dir="${build.dir}/${project.name}/WebContent">
+				<include name="*.jsp" />
+			</fileset>
+			<lib dir="${build.dir}/${project.name}/WebContent/WEB-INF/lib">
+				<include name="*.jar" />
+			</lib>
+		</war>
+	</target>
+
+	<!-- ################## Tomcat server configuration starts ##################### -->
+	<taskdef name="start" classname="org.apache.catalina.ant.StartTask" />
+	<taskdef name="stop" classname="org.apache.catalina.ant.StopTask" />
+	<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask" />
+	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask" />
+	
+	<!-- Stop web application -->
+	<target name="stop" description="stop application in tomcat">
+		<stop url="${tomcat.manager.url}" username="${tomcat.manager.username}"
+			password="${tomcat.manager.password}" path="/${project.name}" />
+	</target>
+
+	<!-- Start web application -->
+	<target name="start" description="start application in tomcat">
+		<start url="${tomcat.manager.url}" username="${tomcat.manager.username}"
+			password="${tomcat.manager.password}" path="/${project.name}" />
+	</target>
+	
+	<!-- Undeploy web application -->
+	<target name="undeploy" description="undeploy from tomcat">
+		<undeploy 
+			failonerror="no"
+			url="${tomcat.manager.url}"
+			username="${tomcat.manager.username}"
+			password="${tomcat.manager.password}"
+			path="/${project.name}"
+		/>
+	</target>
+	
+	<!-- Deploy web application -->
+	<target name="deploy" description="deploy to tomcat">
+		<echo>deploying from client</echo>
+		<deploy 
+			url="${tomcat.manager.url}"
+			username="${tomcat.manager.username}"
+			password="${tomcat.manager.password}"
+			path="/${project.name}"
+			war="file:/home/anand/git/AnvermGateway/${project.name}/${dist.dir}/${project.name}.war"
+		/>
+	</target>
+	<!-- ################## Tomcat server configuration ends ##################### -->
+
+	
+	<!-- Entry Target to build application -->
+	<target name="main" depends="clean, makedir, copy, compile, war, stop, undeploy, deploy, start" >
+		
+	</target>
+</project>

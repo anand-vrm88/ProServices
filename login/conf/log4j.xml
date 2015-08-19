@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
+
+<log4j:configuration>
+	<appender name="fileAppender" class="org.apache.log4j.FileAppender">
+		<param name="file" value="/home/anand/Installed/tomcat/apps_logs/login_log4j.out" />
+		<param name="immediateFlush" value="true" />
+		<param name="threshold" value="debug" />
+		<param name="append" value="true" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="conversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+	
+<!-- 	<logger name="log4j.rootLogger" additivity="false">
+		<level value="info" />
+		<appender-ref ref="fileAppender"/>
+	</logger> -->
+
+	<root>
+		<priority value="info" />
+		<appender-ref ref="fileAppender" />
+	</root>
+</log4j:configuration>

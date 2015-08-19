@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID"
+	version="3.1">
+	<display-name>AnvermGateway</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+
+	<servlet>
+		<servlet-name>InitServlet</servlet-name>
+		<servlet-class>com.anverm.login.servlet.InitServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<filter>
+		<filter-name>LoginServiceFilter</filter-name>
+		<filter-class>com.anverm.login.filter.LoginServiceFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>LoginServiceFilter</filter-name>
+		<url-pattern>/service/*</url-pattern>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>LoginService</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<param-value>com.anverm.login.service.api</param-value>
+		</init-param>
+		<init-param>
+			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>LoginService</servlet-name>
+		<url-pattern>/service/api/*</url-pattern>
+	</servlet-mapping>
+
+	<filter>
+		<filter-name>LoginClientFilter</filter-name>
+		<filter-class>com.anverm.login.filter.LoginClientFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>LoginClientFilter</filter-name>
+		<url-pattern>/console/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>LoginConsoleFilter</filter-name>
+		<filter-class>com.anverm.login.filter.LoginConsoleFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>LoginConsoleFilter</filter-name>
+		<url-pattern>/console/*</url-pattern>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>dashboard</servlet-name>
+		<jsp-file>/dashboard.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>dashboard</servlet-name>
+		<url-pattern>/console/dashboard</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>sign-in</servlet-name>
+		<jsp-file>/sign-in.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>sign-in</servlet-name>
+		<url-pattern>/service/sign-in</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>sign-out</servlet-name>
+		<jsp-file>/sign-out.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>sign-out</servlet-name>
+		<url-pattern>/service/sign-out</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>registerApp</servlet-name>
+		<jsp-file>/registerApplication.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>registerApp</servlet-name>
+		<url-pattern>/console/registerApp</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>editApp</servlet-name>
+		<jsp-file>/editApplication.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>editApp</servlet-name>
+		<url-pattern>/console/editApp</url-pattern>
+	</servlet-mapping>
+
+	<resource-ref>
+		<description>MySQL login Datasource</description>
+		<res-ref-name>jdbc/loginDS</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+	</resource-ref>
+</web-app>
